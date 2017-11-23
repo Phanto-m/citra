@@ -16,9 +16,7 @@ namespace Common {
 
 class ThreadPool : NonCopyable {
 private:
-    explicit ThreadPool(unsigned int num_threads) :
-        num_threads(num_threads),
-        workers(num_threads) {
+    explicit ThreadPool(unsigned int num_threads) : num_threads(num_threads), workers(num_threads) {
         ASSERT(num_threads);
     }
 
@@ -53,11 +51,7 @@ public:
 private:
     class Worker {
     public:
-        Worker() :
-            exit_loop(false),
-            spinlock_enabled(false),
-            thread([this] { loop(); }) {
-        }
+        Worker() : exit_loop(false), spinlock_enabled(false), thread([this] { loop(); }) {}
 
         ~Worker() {
             exit_loop = true;
@@ -69,9 +63,8 @@ private:
 
         void loop() {
             for (;;) {
-                while (queue.consume_all([](const auto& f) {
-                    f();
-                }));
+                while (queue.consume_all([](const auto& f) { f(); }))
+                    ;
                 if (spinlock_enabled)
                     continue;
 
@@ -87,10 +80,9 @@ private:
         template <typename F, typename... Args>
         auto push(F&& f, Args&&... args) {
             auto task = std::make_shared<std::packaged_task<decltype(f(args...))()>>(
-                std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-                );
+                std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
-            while (!queue.push([task]() {(*task)(); }))
+            while (!queue.push([task]() { (*task)(); }))
                 std::this_thread::yield();
 
             if (!spinlock_enabled.load(std::memory_order_relaxed)) {
