@@ -236,24 +236,24 @@ void RasterizerOpenGL::DrawTriangles() {
     state.Apply();
 
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-        color_surface != nullptr ? color_surface->texture.handle : 0, 0);
+                           color_surface != nullptr ? color_surface->texture.handle : 0, 0);
     if (depth_surface != nullptr) {
         if (regs.framebuffer.framebuffer.depth_format ==
             Pica::FramebufferRegs::DepthFormat::D24S8) {
             // attach both depth and stencil
             glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
-                depth_surface->texture.handle, 0);
+                                   depth_surface->texture.handle, 0);
         } else {
             // attach depth
             glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-                depth_surface->texture.handle, 0);
+                                   depth_surface->texture.handle, 0);
             // clear stencil attachment
             glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
         }
     } else {
         // clear both depth and stencil attachment
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
-            0);
+                               0);
     }
 
     // Sync the viewport
@@ -374,7 +374,7 @@ void RasterizerOpenGL::DrawTriangles() {
     // Sync the uniform data
     if (uniform_block_data.dirty) {
         glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData), &uniform_block_data.data,
-            GL_STATIC_DRAW);
+                     GL_STATIC_DRAW);
         uniform_block_data.dirty = false;
     }
 
